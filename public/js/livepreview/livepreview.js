@@ -342,16 +342,8 @@ var applyTimeout = function () {
   timeout = setTimeout( makePreviewHtml, elapsedTime );
 };
 
-  /* Load markdown from /data/page into the ace editor. */
-  if (location.host.indexOf('github.com') === -1) {
-    jQuery.ajax( {
-      type: 'GET',
-      url: '/data/' + $.key( 'page' ),
-      success: function( data ) {
-         editorSession.setValue( data );
-      }
-    });
-  }
+  editorSession.setValue( document.getElementById('default').innerHTML );
+
 
   $( '#save' ).click( function() {
     $.save();

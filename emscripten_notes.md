@@ -1,0 +1,4 @@
+- livepreview_o2
+  - update integration code to trim spaces from codeblocks as in livepreview/
+  - update highlight detection code for sequential <pre> tags as in livepreview/
+  - emscripten version does not support uf8 text (read.md)

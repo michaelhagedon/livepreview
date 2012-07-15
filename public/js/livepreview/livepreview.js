@@ -231,6 +231,7 @@ function highlight( element, language ) {
   // '>' and '&gt;'.
   // Firefox does not support innerText.
   var data = element.innerText || element.textContent;
+  data = data.trim();
   var mode = getLang( language );
   // input, mode, theme, lineStart, disableGutter
   var color = staticHighlight.render( data, mode, githubTheme, 1, true );
@@ -287,12 +288,14 @@ var makePreviewHtml = function () {
       // highlight removes an element so 0 is always the correct index.
       // Skipped tags are not removed so they must be added.
       var element = codeElements[ 0 + skipped ].firstChild;
-      if ( element == undefined) {
-        return;
+      if ( element == undefined ) {
+        skipped++;
+        continue;
       }
       var codeHTML = element.innerHTML;
-      if ( codeHTML == undefined) {
-        return;
+      if ( codeHTML == undefined ) {
+        skipped++;
+        continue;
       }
       var txt = codeHTML.split( /\b/ );
       // the syntax for code highlighting means all code, even one line, contains newlines.
@@ -338,8 +341,16 @@ var applyTimeout = function () {
   timeout = setTimeout( makePreviewHtml, elapsedTime );
 };
 
-  editorSession.setValue( document.getElementById('default').innerHTML );
-
+  /* Load markdown from /data/page into the ace editor. */
+  if ( location.host.indexOf('github.com') === -1 ) {
+    jQuery.ajax( {
+      type: 'GET',
+      url: '/data/' + $.key( 'page' ),
+      success: function( data ) {
+         editorSession.setValue( data );
+      }
+    });
+  }
 
   $( '#save' ).click( function() {
     $.save();

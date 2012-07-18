@@ -1,5 +1,5 @@
-[sundown + livepreview](http://bootstraponline.github.com/livepreview/public)
-[markdowndeep + livepreview](http://bootstraponline.github.com/livepreview/public/index_deep.html)
+- [sundown + livepreview](http://bootstraponline.github.com/livepreview/public)
+- [markdowndeep + livepreview](http://bootstraponline.github.com/livepreview/public/index_deep.html)
 
 Uses code/assets from:
 

@@ -1,7 +1,6 @@
-/* Define one global function that renders markdown.
- TODO: require.js module.
-*/
-(function() {
+/** Use sundown to render markdown. **/
+define(function(require, exports, module) {
+  'use strict';
   // Grab functions from emscripten
   var Pointer_stringify = Module.Pointer_stringify;
   var _str_to_html = Module._str_to_html;
@@ -11,14 +10,15 @@
   var allocSize = 2048;
   var pointer = malloc( allocSize ) ;
 
-  window.md_to_html = function( text ) {
+  return { md_to_html: function( text ) {
     var textLength = text.length;
-    while ( textLength > allocSize ) {
-      allocSize <<= 1; // double
-      pointer = realloc( pointer, allocSize );
-    }
+      while ( textLength > allocSize ) {
+        allocSize <<= 1; // double
+        pointer = realloc( pointer, allocSize );
+      }
 
-    writeStringToMemory( text, pointer );
-    return Pointer_stringify( _str_to_html( pointer ) );
-  };
-})();
+      writeStringToMemory( text, pointer );
+      return Pointer_stringify( _str_to_html( pointer ) );
+    } // end md_to_html
+  }; // end return
+});

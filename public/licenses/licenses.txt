@@ -48,12 +48,3 @@ The following PNGs are based on Ubuntu 11.10 SVG files located in /usr/share/ico
   lib/gollum/frontend/public/css/folder-horizontal.png
   lib/gollum/frontend/public/css/toggle-small-expand.png
   lib/gollum/frontend/public/css/toggle-small.png
-
----
-
-The css-tree-menu code is used under the MIT license.
-
-http://www.thecssninja.com/css/css-tree-menu
-http://www.thecssninja.com/demo/license.txt
-
-  lib/gollum/frontend/public/css/_styles.css

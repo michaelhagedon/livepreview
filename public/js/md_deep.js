@@ -1,6 +1,4 @@
-/* Define one global function that renders markdown.
- TODO: require.js module.
-*/
+// Define one global function that renders markdown.
 (function() {
   var md = new MarkdownDeep.Markdown();
   md.ExtraMode = true;

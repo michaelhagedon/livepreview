@@ -1,6 +1,4 @@
-/* Define one global function that renders markdown.
- TODO: require.js module.
-*/
+// Define one global function that renders markdown.
 (function() {
   // Grab functions from emscripten
   var Pointer_stringify = Module.Pointer_stringify;

@@ -1,16 +1,6 @@
 require([ 'ace/undomanager', 'ace/ext/static_highlight', 'ace/theme/github', 'ace/editor', 'ace/virtual_renderer', 'ace/mode/markdown', 'ace/theme/twilight',
 'ace/mode/c_cpp', 'ace/mode/clojure', 'ace/mode/coffee', 'ace/mode/coldfusion', 'ace/mode/csharp', 'ace/mode/css', 'ace/mode/diff', 'ace/mode/golang', 'ace/mode/groovy', 'ace/mode/haxe', 'ace/mode/html', 'ace/mode/java', 'ace/mode/javascript', 'ace/mode/json', 'ace/mode/latex', 'ace/mode/less', 'ace/mode/liquid', 'ace/mode/lua', 'ace/mode/markdown', 'ace/mode/ocaml', 'ace/mode/perl', 'ace/mode/pgsql', 'ace/mode/php', 'ace/mode/powershell', 'ace/mode/python', 'ace/mode/ruby', 'ace/mode/scad', 'ace/mode/scala', 'ace/mode/scss', 'ace/mode/sh', 'ace/mode/sql', 'ace/mode/svg', 'ace/mode/textile', 'ace/mode/text', 'ace/mode/xml', 'ace/mode/xquery', 'ace/mode/yaml'
 ], function() {
-// Grab functions from emscripten
-var Pointer_stringify = Module.Pointer_stringify;
-var _str_to_html = Module._str_to_html;
-var malloc = Module._malloc;
-var realloc = Module._realloc;
-var writeStringToMemory = Module.writeStringToMemory;
-var allocSize = 2048;
-var pointer = malloc( allocSize ) ;
-// end emscripten
-
 var UndoManager = require("ace/undomanager").UndoManager;
 var Renderer = require( 'ace/virtual_renderer' ).VirtualRenderer;
 var Editor = require( 'ace/editor' ).Editor;
@@ -259,15 +249,7 @@ var makePreviewHtml = function () {
   }
 
   var prevTime = new Date().getTime();
-
-  var textLength = text.length;
-  while ( textLength > allocSize ) {
-    allocSize <<= 1; // double
-    pointer = realloc( pointer, allocSize );
-  }
-
-  writeStringToMemory( text, pointer );
-  text = Pointer_stringify( _str_to_html( pointer ) );
+  text = md_to_html( text );
 
   // Calculate the processing time of the HTML creation.
   // It's used as the delay time in the event listener.

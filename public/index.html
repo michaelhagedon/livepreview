@@ -2,6 +2,9 @@
 <html>
 <head>
 <title>Live Preview o2</title>
+<!-- For production
+<link rel='stylesheet' type='text/css' href='../css/template.css' />
+-->
 <link rel='stylesheet' type='text/css' href='css/gollum/template.css' />
 <link rel='stylesheet' type='text/css' href='css/custom.css' />
 </head>
@@ -30,10 +33,16 @@ var require = {
   }
 };
 </script>
-<script src='js/requirejs/require.js'></script>
-<script src='js/jquery/jquery-1.7.2.min.js'></script>
-<script src='js/debounce/jquery.ba-throttle-debounce.js'></script>
-<script src='js/sundown/sundown.js'></script>
-<script src='js/livepreview/livepreview.js'></script>
+<script src='js/requirejs.min.js'></script>
+<script src='js/jquery-1.7.2.min.js'></script>
+<script src='js/jquery.ba-throttle-debounce.min.js'></script>
+<script src='js/sundown.js'></script>
+<script src='js/livepreview.js'></script>
+<script>(function(d,j){
+j = d.createElement('script');
+j.src = 'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+(d.head || d.getElementsByTagName('head')[0]).appendChild(j);
+}(document));
+</script>
 </body>
 </html>

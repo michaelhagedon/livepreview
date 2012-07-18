@@ -343,8 +343,10 @@ var applyTimeout = function () {
   timeout = setTimeout( makePreviewHtml, elapsedTime );
 };
 
-  /* Load markdown from /data/page into the ace editor. */
-  if ( location.host.indexOf('github.com') === -1 ) {
+  /* Load markdown from /data/page into the ace editor.
+     ~-1 == false; !~-1 == true;
+   */
+  if ( !~location.host.indexOf('github.com') ) {
     jQuery.ajax( {
       type: 'GET',
       url: '/data/' + $.key( 'page' ),

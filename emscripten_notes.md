@@ -1,4 +1,7 @@
-- livepreview_o2
-  - update integration code to trim spaces from codeblocks as in livepreview/
-  - update highlight detection code for sequential <pre> tags as in livepreview/
-  - emscripten version does not support uf8 text (read.md)
+## Ideas
+
+- Add support for %% inline math
+
+- Add diff filter for highlighted code
+
+- MathJax extension to support $$ and %% instead of using global regex in livepreview.js

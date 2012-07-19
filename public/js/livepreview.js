@@ -62,7 +62,7 @@ initAce( commentEditor, commentEditorSession );
 $.key = function( key ) {
     var value = new RegExp( '[\\?&]' + key + '=([^&#]*)' ).exec( location.href );
     return  ( !value ) ? 0 : value[ 1 ] || 0;
-}
+};
 
 // True if &create=true
 var create = $.key( 'create' );
@@ -82,7 +82,7 @@ defaultCommitMessage = function() {
   } else {
     return 'Updated ' + msg;
   }
-}
+};
 
 // Set comment using the default commit message.
 commentEditorSession.setValue( defaultCommitMessage() );
@@ -122,7 +122,7 @@ $.save = function( commitMessage ) {
       }
     });
   } // end else
-}
+};
 
 var elapsedTime;
 var oldInputText = '';
@@ -131,30 +131,33 @@ var oldInputText = '';
 var timeout;
 
 var nonSuckyBrowserPreviewSet = function( text ) {
-  content.innerHTML = text;
-}
+  // contentdiv is dynamically replaced so look it up each time.
+  content.children[0].innerHTML = text;
+};
 
 // IE doesn't let you use innerHTML if the element is contained somewhere in a table
 // (which is the case for inline editing) -- in that case, detach the element, set the
 // value, and reattach. Yes, that *is* ridiculous.
 var ieSafePreviewSet = function( text ) {
-  var parent = content.parentNode;
-  var sibling = content.nextSibling;
+  // contentdiv is dynamically replaced so look it up each time.
+  var contentdiv = content.children[0];
+  var parent = contentdiv.parentNode;
+  var sibling = contentdiv.nextSibling;
   parent.removeChild( content );
-  content.innerHTML = text;
+  contentdiv.innerHTML = text;
   if ( !sibling )
     parent.appendChild( content );
   else
     parent.insertBefore( content, sibling );
-}
+};
 
 var cssTextSet = function( element, css ){
   element.style.cssText = css;
-}
+};
 
 var cssAttrSet = function( element, css ){
   element.setAttribute( 'style', css );
-}
+};
 
 /*
  Redefine the function based on browser support.
@@ -172,7 +175,7 @@ var cssSet = function( element, css ) {
     cssAttrSet( element, css );
     cssSet = cssAttrSet;
   }
-}
+};
 
 var previewSet = function( text ) {
   try {
@@ -233,6 +236,55 @@ function highlight( element, language ) {
   element.parentNode.parentNode.replaceChild( newDiv, element.parentNode );
 }
 
+/** from notepag.es **/
+/*
+Define custom filter to accurately compare math nodes.
+Only support dollar syntax (not %%).
+*/
+$.fn.quickdiff( 'filter', 'math',
+  function ( node ) {
+    return (node.nodeName.toLowerCase() === 'span' &&
+      $( node ).hasClass( 'math' ));
+  },
+  function ( a, b ) {
+    var aHTML = $.trim( $( 'script', a ).html() );
+    var bHTML = $.trim( $( b ).html() );
+    return ( '$$' + aHTML + '$$' ) !== bHTML;
+  });
+
+/* MathJax is loaded async so make sure it's defined before calling.
+   if (typeof MathJax != 'undefined') { typeset( new_html ); }
+   http://stackoverflow.com/questions/1834642/best-practice-for-semicolon-after-every-function-in-javascript
+
+  Type set works on the rendered html *output* not input.
+*/
+function typeset( new_html ) {
+  // TODO: Define %% as inline math operator. $$ is only for display math.
+  // code based on notepag.es & attack lab showdown.
+  new_html = new_html.replace(/\$\$([^\r\n]*)\$\$/gm,
+    function(wholeMatch,m1) {
+      return '<span class="math">$$'+m1.trim()+"$$</span>";
+  });
+
+  // content has the old html.
+  // both contentdiv and new_html must be wrapped for quickdiff.
+  // #content > div is guarenteed to be first child.
+  var patch = $( content.children[ 0 ] ).quickdiff( 'diff',
+    $( '<div>' + new_html + '</div>' ), [ 'math' ] );
+  
+  if ( patch.type === 'identical' ) { return; }
+  patch.patch();
+
+  if ( patch.type !== 'identical' && patch.replace.length > 0 ) {
+    $.each( patch.replace, function ( i, el ) {
+      if ( el.innerHTML ) {
+        MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub, el ] );
+      }
+    });
+  }
+}
+/** end from notepag.es **/
+
 var makePreviewHtml = function () {
   var text = editorSession.getValue();
 
@@ -251,16 +303,12 @@ var makePreviewHtml = function () {
   var prevTime = new Date().getTime();
   text = md_to_html( text );
 
-  // Calculate the processing time of the HTML creation.
-  // It's used as the delay time in the event listener.
-  var currTime = new Date().getTime();
-  elapsedTime = currTime - prevTime;
+  // MathJax is loaded asynchronously.
+  if (typeof MathJax != 'undefined') { typeset( text ); };
 
   // Update the text using feature detection to support IE.
   // preview.innerHTML = text; // this doesn't work on IE.
-  previewSet( text );
-  // MathJax is loaded asynchronously.
-  if (typeof MathJax != 'undefined') { MathJax.Hub.Typeset( content ); }
+  // previewSet( text );
 
   // highlight code blocks.
   var codeElements = preview.getElementsByTagName( 'pre' );
@@ -307,8 +355,16 @@ var makePreviewHtml = function () {
         skipped++;
       }
     }
-  }
-};
+  }// end highlight
+
+  // Calculate the processing time of the HTML creation.
+  // It's used as the delay time in the event listener.
+  var currTime = new Date().getTime();
+  elapsedTime = currTime - prevTime;
+}; // end makePreviewHtml
+
+// for debugging
+$.makePreview = makePreviewHtml;
 
 // setTimeout is already used.  Used as an event listener.
 var applyTimeout = function () {

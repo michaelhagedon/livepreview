@@ -236,6 +236,8 @@ function highlight( element, language ) {
   element.parentNode.parentNode.replaceChild( newDiv, element.parentNode );
 }
 
+var hubConfig = false;
+
 var makePreviewHtml = function () {
   var text = editorSession.getValue();
 
@@ -255,7 +257,16 @@ var makePreviewHtml = function () {
   text = md_to_html( text );
   previewSet( text );
   // MathJax is loaded asynchronously.
-  if (typeof MathJax != 'undefined') {  MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub, content ] ); };
+  if (typeof MathJax != 'undefined') {
+    if ( ! hubConfig ) {
+      MathJax.Hub.Config({
+        displayAlign: 'left',
+      });
+      hubConfig = true;
+    }
+
+    MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub, content ] );
+  }
 
   // Update the text using feature detection to support IE.
   // preview.innerHTML = text; // this doesn't work on IE.

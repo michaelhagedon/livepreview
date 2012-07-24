@@ -258,7 +258,16 @@ $.fn.quickdiff( 'filter', 'math',
 
   Type set works on the rendered html *output* not input.
 */
+var hubConfig = false;
+
 function typeset( new_html ) {
+  if (!hubConfig) {
+    MathJax.Hub.Config({
+      displayAlign: 'left',
+    });
+    hubConfig = true;
+  }
+  
   // TODO: Define %% as inline math operator. $$ is only for display math.
   // code based on notepag.es & attack lab showdown.
   new_html = new_html.replace(/\$\$([^\r\n]*)\$\$/gm,

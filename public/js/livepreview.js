@@ -236,6 +236,32 @@ function highlight( element, language ) {
   element.parentNode.parentNode.replaceChild( newDiv, element.parentNode );
 }
 
+/** based on pagedown code **/
+var g_html_blocks = [];
+
+function hashBlock( text ) {
+  text = text.replace(/(^\n+|\n+$)/g, '');
+  return "\n\n~K" + (g_html_blocks.push(text) - 1) + "K\n\n";
+}
+
+function unhash( text ) {
+  text = text.replace(/~K(\d+)K/g, function (wholeMatch, id) {
+    return g_html_blocks[id];
+  });
+  // clear out all blocks once they're unhashed.
+  g_html_blocks = [];
+  return text;
+}
+
+function encodeMathJax( text ) {
+  return text.replace(/\$\$([^\r\n]*)\$\$/gm,
+    function(wholeMatch,m1) {
+      return hashBlock( '$$' + m1.trim() + '$$' );
+  });
+}
+/** end pagedown **/
+
+// Configure MathJax once.
 var hubConfig = false;
 
 var makePreviewHtml = function () {
@@ -254,7 +280,9 @@ var makePreviewHtml = function () {
   }
 
   var prevTime = new Date().getTime();
+  text = encodeMathJax( text );
   text = md_to_html( text );
+  text = unhash( text );
   previewSet( text );
   // MathJax is loaded asynchronously.
   if (typeof MathJax != 'undefined') {

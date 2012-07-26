@@ -42,3 +42,10 @@ All changes to Ace for livepreview have been upstreamed.
 Using jQuery v1.7.2.
 
 - Download latest production version from [jquery.com](http://www.jquery.com).
+
+#### Directory Layout
+
+- /public/css - gollum css
+- /public/javascript - gollum javascript
+- /public/images - gollum images
+- /public/web/* - livepreview files

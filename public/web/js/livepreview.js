@@ -374,7 +374,7 @@ var applyTimeout = function () {
   /* Load markdown from /data/page into the ace editor.
      ~-1 == false; !~-1 == true;
    */
-  if ( !~location.host.indexOf('github.com') ) {
+  if ( !~location.href.indexOf('/web/') ) {
     jQuery.ajax( {
       type: 'GET',
       url: '/data/' + $.key( 'page' ),

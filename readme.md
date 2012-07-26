@@ -19,13 +19,14 @@ See licenses folder for details.
 
 # Updating gollum
 
- - /public/css/custom.css (not css/gollum/)
- - /public/images/*
- - /public/js/*
- - /public/licenses/*
- - /public/index.html
- - readme.md
- - replace template.css link in index.html
+- /public/web/* - livepreview files
+
+The folders below are from gollum.
+
+- /public/css - gollum css
+- /public/javascript - gollum javascript
+- /public/images - gollum images
+
 
 # Dependency Notes
 
@@ -42,10 +43,3 @@ All changes to Ace for livepreview have been upstreamed.
 Using jQuery v1.7.2.
 
 - Download latest production version from [jquery.com](http://www.jquery.com).
-
-#### Directory Layout
-
-- /public/css - gollum css
-- /public/javascript - gollum javascript
-- /public/images - gollum images
-- /public/web/* - livepreview files

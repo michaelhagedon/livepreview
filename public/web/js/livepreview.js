@@ -58,11 +58,14 @@ var commentEditorContainer = commentEditor.container;
 
 initAce( commentEditor, commentEditorSession );
 
+// Find the app's base url, knowing we are in /livepreview/index.html
+var baseUrl = location.pathname.split('/').slice(0,-2).join('/');
+
 // RegExp from http://stackoverflow.com/questions/901115/get-query-string-values-in-javascript
 $.key = function( key ) {
     var value = new RegExp( '[\\?&]' + key + '=([^&#]*)' ).exec( location.href );
     return  ( !value ) ? 0 : value[ 1 ] || 0;
-};
+}
 
 // True if &create=true
 var create = $.key( 'create' );
@@ -82,7 +85,7 @@ defaultCommitMessage = function() {
   } else {
     return 'Updated ' + msg;
   }
-};
+}
 
 // Set comment using the default commit message.
 commentEditorSession.setValue( defaultCommitMessage() );
@@ -94,19 +97,21 @@ $.save = function( commitMessage ) {
   var markdown = 'markdown';
   var txt = editorSession.getValue();
   var msg = defaultCommitMessage();
-  var newLocation = location.protocol + '//' + location.host;
+  var newLocation = location.protocol + '//' + location.host + baseUrl;
 
+  // 'a%2Fb' => a/b
   if (pathName) {
-    newLocation += '/' + pathName;
+    newLocation += '/' + unescape(pathName);
+    pathName = pathName + '/'; // pathName must end with /
   }
-  
+
   newLocation += '/' + pageName;
 
   // if &create=true then handle create instead of edit.
   if ( create ) {
     jQuery.ajax( {
       type: POST,
-      url: '/create',
+      url: baseUrl + '/create',
       data:  { path: pathName, page: pageName, format: markdown, content: txt, message: commitMessage || msg },
       success: function() {
         win.location = newLocation;
@@ -115,14 +120,14 @@ $.save = function( commitMessage ) {
   } else {
     jQuery.ajax( {
       type: POST,
-      url: '/edit/' + pageName,
+      url: baseUrl + '/edit/' + pageName,
       data:  { path: pathName, page: pageName, format: markdown, content: txt, message:  commitMessage || msg },
       success: function() {
           win.location = newLocation;
       }
     });
   } // end else
-};
+}
 
 var elapsedTime;
 var oldInputText = '';
@@ -131,33 +136,30 @@ var oldInputText = '';
 var timeout;
 
 var nonSuckyBrowserPreviewSet = function( text ) {
-  // contentdiv is dynamically replaced so look it up each time.
-  content.children[0].innerHTML = text;
-};
+  content.innerHTML = text;
+}
 
 // IE doesn't let you use innerHTML if the element is contained somewhere in a table
 // (which is the case for inline editing) -- in that case, detach the element, set the
 // value, and reattach. Yes, that *is* ridiculous.
 var ieSafePreviewSet = function( text ) {
-  // contentdiv is dynamically replaced so look it up each time.
-  var contentdiv = content.children[0];
-  var parent = contentdiv.parentNode;
-  var sibling = contentdiv.nextSibling;
+  var parent = content.parentNode;
+  var sibling = content.nextSibling;
   parent.removeChild( content );
-  contentdiv.innerHTML = text;
+  content.innerHTML = text;
   if ( !sibling )
     parent.appendChild( content );
   else
     parent.insertBefore( content, sibling );
-};
+}
 
 var cssTextSet = function( element, css ){
   element.style.cssText = css;
-};
+}
 
 var cssAttrSet = function( element, css ){
   element.setAttribute( 'style', css );
-};
+}
 
 /*
  Redefine the function based on browser support.
@@ -175,7 +177,7 @@ var cssSet = function( element, css ) {
     cssAttrSet( element, css );
     cssSet = cssAttrSet;
   }
-};
+}
 
 var previewSet = function( text ) {
   try {
@@ -236,34 +238,6 @@ function highlight( element, language ) {
   element.parentNode.parentNode.replaceChild( newDiv, element.parentNode );
 }
 
-/** based on pagedown code **/
-var g_html_blocks = [];
-
-function hashBlock( text ) {
-  text = text.replace(/(^\n+|\n+$)/g, '');
-  return "\n\n~K" + (g_html_blocks.push(text) - 1) + "K\n\n";
-}
-
-function unhash( text ) {
-  text = text.replace(/~K(\d+)K/g, function (wholeMatch, id) {
-    return g_html_blocks[id];
-  });
-  // clear out all blocks once they're unhashed.
-  g_html_blocks = [];
-  return text;
-}
-
-function encodeMathJax( text ) {
-  return text.replace(/\$\$([^\r\n]*)\$\$/gm,
-    function(wholeMatch,m1) {
-      return hashBlock( '$$' + m1.trim() + '$$' );
-  });
-}
-/** end pagedown **/
-
-// Configure MathJax once.
-var hubConfig = false;
-
 var makePreviewHtml = function () {
   var text = editorSession.getValue();
 
@@ -280,25 +254,18 @@ var makePreviewHtml = function () {
   }
 
   var prevTime = new Date().getTime();
-  text = encodeMathJax( text );
   text = md_to_html( text );
-  text = unhash( text );
-  previewSet( text );
-  // MathJax is loaded asynchronously.
-  if (typeof MathJax != 'undefined') {
-    if ( ! hubConfig ) {
-      MathJax.Hub.Config({
-        displayAlign: 'left',
-      });
-      hubConfig = true;
-    }
 
-    MathJax.Hub.Queue( [ 'Typeset', MathJax.Hub, content ] );
-  }
+  // Calculate the processing time of the HTML creation.
+  // It's used as the delay time in the event listener.
+  var currTime = new Date().getTime();
+  elapsedTime = currTime - prevTime;
 
   // Update the text using feature detection to support IE.
   // preview.innerHTML = text; // this doesn't work on IE.
-  // previewSet( text );
+  previewSet( text );
+  // MathJax is loaded asynchronously.
+  if (typeof MathJax != 'undefined') { MathJax.Hub.Typeset( content ); }
 
   // highlight code blocks.
   var codeElements = preview.getElementsByTagName( 'pre' );
@@ -345,16 +312,8 @@ var makePreviewHtml = function () {
         skipped++;
       }
     }
-  }// end highlight
-
-  // Calculate the processing time of the HTML creation.
-  // It's used as the delay time in the event listener.
-  var currTime = new Date().getTime();
-  elapsedTime = currTime - prevTime;
-}; // end makePreviewHtml
-
-// for debugging
-$.makePreview = makePreviewHtml;
+  }
+};
 
 // setTimeout is already used.  Used as an event listener.
 var applyTimeout = function () {
@@ -374,10 +333,10 @@ var applyTimeout = function () {
   /* Load markdown from /data/page into the ace editor.
      ~-1 == false; !~-1 == true;
    */
-  if ( !~location.href.indexOf('/web/') ) {
+  if ( !~location.host.indexOf('github.com') ) {
     jQuery.ajax( {
       type: 'GET',
-      url: '/data/' + $.key( 'page' ),
+      url: baseUrl + '/data/' + $.key( 'page' ),
       success: function( data ) {
          editorSession.setValue( data );
       }
@@ -436,10 +395,10 @@ var applyTimeout = function () {
     var widthFourth = widthHalf / 2;
     var height = $( win ).height();
     var heightHalf = height / 2;
- 
+
     // height minus 50 so the end of document text doesn't flow off the page.
     var editorContainerStyle = 'width:' + widthHalf + 'px;' +
-      'height:' + (height - 50) + 'px;' + 
+      'height:' + (height - 50) + 'px;' +
       'left:' + (leftRight === false ? widthHalf + 'px;' : '0px;') +
       'top:' + '40px;'; // use 40px for tool menu
     cssSet( editorContainer, editorContainerStyle );

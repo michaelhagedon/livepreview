@@ -37,7 +37,7 @@ Using master branch at [49a120990f9938bf5b7bcb0c619a866db271fc6c](https://github
 
 Build ACE [manually](https://github.com/ajaxorg/ace/wiki/Building-ace).
 
-`node Makefile.dryice.js minimal-min --target ../ace-builds`
+`node Makefile.dryice.js minimal --m --target ../ace-builds`
 
 All changes to Ace for livepreview have been upstreamed.
 - Gutter control [#799](https://github.com/ajaxorg/ace/pull/799)

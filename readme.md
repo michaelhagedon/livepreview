@@ -31,9 +31,13 @@ The folders below are from gollum.
 # Dependency Notes
 
 ## Ace
-Using master branch at [a091a627a09d5530747576869fefe797816ec4b6](https://github.com/ajaxorg/ace/commit/a091a627a09d5530747576869fefe797816ec4b6).
+Using master branch at [49a120990f9938bf5b7bcb0c619a866db271fc6c](https://github.com/ajaxorg/ace/commit/49a120990f9938bf5b7bcb0c619a866db271fc6c).
 
-- Copy `ajaxorg/ace/lib/ace` to `/public/js/ace/lib/ace`
+- Copy `ace-builds/src-min` to `/public/js/ace/src-min`
+
+Build ACE [manually](https://github.com/ajaxorg/ace/wiki/Building-ace).
+
+`node Makefile.dryice.js minimal-min --target ../ace-builds`
 
 All changes to Ace for livepreview have been upstreamed.
 - Gutter control [#799](https://github.com/ajaxorg/ace/pull/799)

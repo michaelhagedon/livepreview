@@ -35,7 +35,7 @@ Using master branch at [49a120990f9938bf5b7bcb0c619a866db271fc6c](https://github
 
 - Copy `ace-builds/src-min` to `/public/js/ace/src-min`
 
-Build ACE [manually](https://github.com/ajaxorg/ace/wiki/Building-ace).
+Build ACE [manually](https://github.com/ajaxorg/ace/wiki/Building-ace). Try `npm link` if node dryice fails.
 
 `node Makefile.dryice.js minimal --m --target ../ace-builds`
 
